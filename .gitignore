@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# local runs / logs
+runs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
