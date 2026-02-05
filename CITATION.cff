@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+title: "Neural Basis Method (NBM)"
+message: "If you use this software, please cite the associated paper."
+authors:
+  - family-names: "Wang"
+    given-names: "Harry"
+license: "Apache-2.0"
