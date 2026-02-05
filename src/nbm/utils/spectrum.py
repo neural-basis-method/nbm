@@ -101,27 +101,27 @@ def compare_spectra_samegrid_from_faces(ux_f_approx, uy_f_approx, ux_f_ref, uy_f
         cum_r = np.cumsum(Er_shell) / Sr
         KS = float(np.max(np.abs(cum_a - cum_r))) 
     
-    plt.figure(figsize=(8,4), dpi=240)
-    plt.loglog(k[1:], Er[1:], label="Reference")
-    plt.loglog(k[1:], Ea[1:], '--', label="Approximation")
+    # plt.figure(figsize=(8,4), dpi=240)
+    # plt.loglog(k[1:], Er[1:], label="Reference")
+    # plt.loglog(k[1:], Ea[1:], '--', label="Approximation")
     
-    # explicit font control
-    plt.xlabel("Wavenumber $k$", fontsize=12)
-    plt.ylabel("Energy spectra", fontsize=12)
+    # # explicit font control
+    # plt.xlabel("Wavenumber $k$", fontsize=12)
+    # plt.ylabel("Energy spectra", fontsize=12)
     
-    ax = plt.gca()
-    ax.tick_params(axis='both', which='major', labelsize=11)
-    ax.tick_params(axis='both', which='minor', labelsize=10)
-    ax.legend(fontsize=11)
+    # ax = plt.gca()
+    # ax.tick_params(axis='both', which='major', labelsize=11)
+    # ax.tick_params(axis='both', which='minor', labelsize=10)
+    # ax.legend(fontsize=11)
     
-    # no grid
-    ax.grid(False)
+    # # no grid
+    # ax.grid(False)
     
-    for s in ax.spines.values():
-        s.set_color('black')
-        s.set_linewidth(0.8)
+    # for s in ax.spines.values():
+    #     s.set_color('black')
+    #     s.set_linewidth(0.8)
     
-    plt.show()
+    # plt.show()
 
     return {"rel_L1": rel_L1, "rel_L2": rel_L2, "rel_L1_": rel_L1_, "rel_L2_": rel_L2_, 
             "log_RMSE": log_RMSE, "KS_cum_energy": KS}

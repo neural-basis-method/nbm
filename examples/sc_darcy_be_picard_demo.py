@@ -130,7 +130,6 @@ def main():
       
     from nbm.solvers.sc_darcy_be_picard import run_sc_space_be_picard
 
-    seeds = (380837, 921489, 59285)
     sol = run_sc_space_be_picard(
         nx=nx, ny=ny, x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max,
         layer_num=layer_num, layer_width=layer_width, basis_num=basis_num,
