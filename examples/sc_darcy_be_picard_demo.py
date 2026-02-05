@@ -213,8 +213,7 @@ def main():
         print("\n[demo] spectrum metrics:")
         for kk, vv in m.items():
             print(f"  {kk}: {vv}")
-        (out_dir / "spectrum_metrics.json").write_text(json.dumps(m, indent=2), encoding="utf-8")
-        print("[demo] saved: spectrum_metrics.json")
+
 
     print("\n[demo] done.")
 
