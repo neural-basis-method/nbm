@@ -10,7 +10,7 @@ Current implementations in this repository focus on fluid flow problems, includi
   <tr>
     <td align="center" width="50%">
       <img src="docs/figs/darcy_transport.svg" width="100%">
-      <br/><em>Constant-tracer injection in a CO$_2$ storage reservoir: the prediction is produced by NBM powered operator learning, achieving $\sim 5400\times$ speedup for the full 200-day dynamics.</em>
+      <br/><em>Constant-tracer injection in a CO₂ storage reservoir: the prediction is produced by NBM powered operator learning, achieving ~5400× speedup for the full 200-day dynamics.</em>
     </td>
     <td align="center" width="50%">
       <img src="docs/figs/kolmogorov_xi1_t=20-25.gif" width="100%">
