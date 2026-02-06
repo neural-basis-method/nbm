@@ -18,7 +18,11 @@ Current implementations in this repository focus on fluid flow problems, includi
 
 ---
 
-## Quick start
+## Quick start (no install, run examples directly)
+
+This repo uses the `src/` layout. The examples are runnable **without installing** anything:
+each demo prepends `repo_root/src` into `sys.path`, so `import nbm.*` works out of the box.
+
 
 ### 1) Clone
 
@@ -27,31 +31,11 @@ git clone https://github.com/neural-basis-method/nbm.git
 cd nbm
 ```
 
-### 2) Create an environment (recommended)
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-```
-
-If your repo has a `requirements.txt`:
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3) Run the demo
+### 2) Run the demo
 
 ```bash
 python examples/sc_darcy_be_picard_demo.py
 ```
-
-Notes:
-
-- The demo script inserts `repo_root/src` into `sys.path`, so you can `import nbm.*` without installing the package.
-- Outputs (configs/metrics) may be written under `runs/` depending on demo settings.
-
 
 ---
 
