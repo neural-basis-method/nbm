@@ -10,7 +10,7 @@ Current implementations in this repository focus on fluid flow problems, includi
   <tr>
     <td align="center" width="50%">
       <img src="docs/figs/darcy_transport.svg" width="100%">
-      <br/><em>Figure 3a. NBM overview.</em>
+      <br/><em>Constant-tracer injection in a CO$_2$ storage reservoir: evolution of concentration fields (reference vs. NBM-OL prediction vs. error) at $t=20$ and $200$ days. The prediction is produced by Neural Basis Method powered operator learning (NBM-OL), delivering accurate front tracking while achieving $\sim 5400\times$ speedup when predicting the full 200-day dynamics.</em>
     </td>
     <td align="center" width="50%">
       <img src="docs/figs/kolmogorov_xi1_t=20-25.gif" width="100%">
@@ -20,11 +20,6 @@ Current implementations in this repository focus on fluid flow problems, includi
 </table>
 
 
-
-<figure>
-  <img src="docs/figs/tracer_concentration.svg" alt="NBM and NBM-OL overview figure" width="900">
-  <figcaption><em>Figure 1.</em> NBM freezes a residual network to generate a fixed neural basis space and solves coefficients via deterministic projection; NBM-OL learns a map from parameters (and time) to coefficients using the same residual metric.</figcaption>
-</figure>
 
 ---
 
