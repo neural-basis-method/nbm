@@ -1,4 +1,4 @@
-# Neural Basis Method for modeling and learning PDE-governed systems
+# Neural Basis Method for Solving and Learning PDE-Governed Systems
 
 NBM (Neural Basis Method) is a projection-based, solver-first framework that unifies simulation and learning for PDE-governed systems. Rather than treating a PDE as a loss to be minimized by non-convex training, NBM freezes a multilayer residual network to generate a finite dimensional approximation space of neural basis functions, then computes the solution by solving a deterministic projection problem, typically a weighted least squares system that enforces the PDE operators and boundary conditions directly. This makes the computational structure explicit, preserves physical scaling and numerical stabilization, and yields solver-level residuals that are interpretable, comparable across terms, and actionable for diagnosis.
 
