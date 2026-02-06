@@ -14,7 +14,7 @@ Current implementations in this repository focus on fluid flow problems, includi
     </td>
     <td align="center" width="50%">
       <img src="docs/figs/kolmogorov_xi1_t=20-25.gif" width="100%">
-      <br/><em>Kolmogorov flow (bounded, 25s horizon): columns show x-velocity, y-velocity, and speed; rows show prediction, reference, and error. Relative L2: 0.2% (spectral), 1.2% (speed); speedup: ~25000×.</em>
+      <br/><em>Kolmogorov flow (bounded, t=20-25s): columns show x-velocity, y-velocity, and speed; rows show prediction, reference, and error. Relative L2: 0.2% (spectral), 1.2% (speed); speedup: ~25000× (for 25s horizon).</em>
     </td>
   </tr>
 </table>
