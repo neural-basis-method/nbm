@@ -4,7 +4,7 @@ NBM (Neural Basis Method) is a projection-based, solver-first framework that uni
 
 NBM is paired with operator learning (NBM-OL) for parametric many-query problems. By representing solution families across parameter instances in the same fixed neural basis space, NBM-OL learns a map from parameter encodings (and time, when applicable) to the neural basis coefficients. Training is self-supervised using the same residual metric as the NBM solver, so the learned operator is constrained by an operator-consistent objective rather than heuristic, dimensionless loss balancing. Beyong forward prediction, this residual-structured formualtion also provides a natural route to physics-constrained inverse problems, where measurements can be appended as additional residual blocks to uncover system parameters guided by model-data identifiability and compatiblility.  
 
-Current implementations in this repository focus on fluid flow problems, spanning porous-media flow and transport, incompressible Navier–Stokes systems, and network-flow models such as pipeline and blood-flow networks.
+Current implementations in this repository focus on fluid flow problems, including porous media flow and transport, incompressible Navier–Stokes systems, and network-flow models such as pipeline and blood-flow networks.
 
 ---
 
