@@ -75,7 +75,7 @@ def main():
     picard_iters = 25
 
     # ---- BC ----
-    bc_left = 1500.0
+    p_left = 1500.0
     u_right = 0.0
     u_top = 5.0
     u_bottom = 0.0
@@ -113,7 +113,7 @@ def main():
         nx=nx, ny=ny,
         rho0=rho0, cf=cf, p0=p0, epsilon=epsilon, mu=mu,
         dt=dt, n_steps=n_steps, picard_iters=picard_iters,
-        bc_left=bc_left, g_right=g_right, g_bottom=g_bottom, g_top=g_top,
+        p_left=p_left, g_right=g_right, g_bottom=g_bottom, g_top=g_top,
         use_kappa_file=use_kappa_file, kappa_file=str(kappa_file),
         constant_kappa=constant_kappa,
         layer_num=layer_num, layer_width=layer_width, basis_num=basis_num,
@@ -140,7 +140,7 @@ def main():
         constant_kappa=constant_kappa,
 
         q_fun=None,
-        bc_left=bc_left, g_right=g_right, g_bottom=g_bottom, g_top=g_top,
+        p_left=p_left, g_right=g_right, g_bottom=g_bottom, g_top=g_top,
 
         n_steps=n_steps, dt=dt, picard_iters=picard_iters,
         ridge=ridge, orthogonal=orthogonal, seed=seeds,
@@ -169,7 +169,7 @@ def main():
             constant_kappa=constant_kappa,
             kappa_val=0.3 * 6.328 * 0.0008,
             kappa_file=str(kappa_file),
-            p_left=bc_left,
+            p_left=p_left,
             m_right=g_right,
             m_top=g_bottom,
             m_bottom=g_top,

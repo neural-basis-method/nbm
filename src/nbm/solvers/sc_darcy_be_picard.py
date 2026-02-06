@@ -119,8 +119,8 @@ def run_sc_space_be_picard(
     kappa_val: float = 0.3 * 6.328 * 0.0008,
     # source term q(x,y)
     q_fun: Optional[Callable[[np.ndarray, np.ndarray], np.ndarray]] = None,
-    # BC: left Dirichlet p=bc_left; others Neumann mass flux n·J=g_*
-    bc_left: float = 1500.0,
+    # BC: left Dirichlet p=p_left; others Neumann mass flux n·J=g_*
+    p_left: float = 1500.0,
     g_right: float = 0.0,
     g_bottom: float = 0.0,
     g_top: float = 120.0,
@@ -416,11 +416,11 @@ def run_sc_space_be_picard(
         A[ind_top, nb_jdiv+nb_jcurl:] = 0.0
         b[i3:i4, :] = float(-g_top) * w_top
 
-        # left: p = bc_left
+        # left: p = p_left
         A[ind_left, 0:nb_jdiv] = 0.0
         A[ind_left, nb_jdiv:nb_jdiv+nb_jcurl] = 0.0
         A[ind_left, nb_jdiv+nb_jcurl:] = P_L * w_left
-        b[i4:i5, :] = float(bc_left) * w_left
+        b[i4:i5, :] = float(p_left) * w_left
 
         # ---- Darcy rows (cell centers) ----
         # Darcy_x: Jx_div + Jx_grad + M* * px = 0
