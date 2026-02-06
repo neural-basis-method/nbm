@@ -6,6 +6,21 @@ NBM is paired with operator learning (NBM-OL) for parametric many-query problems
 
 Current implementations in this repository focus on fluid flow problems, including porous media flow and transport, incompressible Navier–Stokes systems, and network-flow models such as pipeline and blood-flow networks.
 
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/figs/darcy_transport.svg" width="100%">
+      <br/><em>Constant-tracer injection in a CO₂ storage reservoir: the prediction is produced by NBM-OL, achieving ~5400× speedup for the full 200-day dynamics.</em>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/figs/kolmogorov_xi1_t=20-25.gif" width="100%">
+      <br/><em>Kolmogorov flow (bounded, t=20-25s): columns show x-velocity, y-velocity, and speed; rows show prediction, reference, and error. Relative L2: 0.2% (spectral), 1.2% (speed); speedup: ~25000× (for 25s horizon).</em>
+    </td>
+  </tr>
+</table>
+
+
+
 ---
 
 ## What is in this repo
