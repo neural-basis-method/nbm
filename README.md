@@ -6,7 +6,7 @@ NBM is paired with operator learning (NBM-OL) for parametric many-query problems
 
 Current implementations in this repository focus on fluid flow problems, including porous media flow and transport, incompressible Navier–Stokes systems, and network-flow models such as pipeline and blood-flow networks.
 
-![NBM overview: solver-first projection and operator learning workflow](docs/figs/tracer_concentration.pdf)
+![NBM overview: solver-first projection and operator learning workflow](docs/figs/tracer_concentration.svg)
 
 *Figure 1. Neural Basis Method (NBM) and NBM-OL overview. NBM freezes a residual network to generate a fixed neural basis space and solves for coefficients via deterministic projection; NBM-OL learns a map from parameters (and time) to coefficients using the same residual metric.*
 
