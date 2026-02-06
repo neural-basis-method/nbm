@@ -10,7 +10,7 @@ Current implementations in this repository focus on fluid flow problems, includi
   <tr>
     <td align="center" width="50%">
       <img src="docs/figs/darcy_transport.svg" width="100%">
-      <br/><em>Constant-tracer injection in a CO$_2$ storage reservoir: evolution of concentration fields (reference vs. NBM-OL prediction vs. error) at $t=20$ and $200$ days. The prediction is produced by Neural Basis Method powered operator learning (NBM-OL), delivering accurate front tracking while achieving $\sim 5400\times$ speedup when predicting the full 200-day dynamics.</em>
+      <br/><em>Constant-tracer injection in a CO$_2$ storage reservoir: The prediction is produced by NBM powered operator learning. $\sim 5400\times$ speedup when predicting the full 200-day dynamics.</em>
     </td>
     <td align="center" width="50%">
       <img src="docs/figs/kolmogorov_xi1_t=20-25.gif" width="100%">
