@@ -10,11 +10,11 @@ Current implementations in this repository focus on fluid flow problems, includi
   <tr>
     <td align="center" width="50%">
       <img src="docs/figs/darcy_transport.svg" width="100%">
-      <br/><em>Constant-tracer injection in a CO₂ storage reservoir: the prediction is produced by NBM powered operator learning, achieving ~5400× speedup for the full 200-day dynamics.</em>
+      <br/><em>Constant-tracer injection in a CO₂ storage reservoir: the prediction is produced by NBM-OL, achieving ~5400× speedup for the full 200-day dynamics.</em>
     </td>
     <td align="center" width="50%">
       <img src="docs/figs/kolmogorov_xi1_t=20-25.gif" width="100%">
-      <br/><em>Figure 3b. Demo animation.</em>
+      <br/><em>Kolmogorov flow (bounded, 25s horizon): columns show x-velocity, y-velocity, and speed; rows show prediction (top), reference (middle), and absolute error (bottom). Relative error: 0.2% (spectral), 1.2% (speed); speedup: ~25000×.</em>
     </td>
   </tr>
 </table>
