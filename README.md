@@ -9,7 +9,7 @@ Current implementations in this repository focus on fluid flow problems, includi
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="docs/figs/tracer_concentration.svg" width="100%">
+      <img src="docs/figs/darcy_transport.svg" width="100%">
       <br/><em>Figure 3a. NBM overview.</em>
     </td>
     <td align="center" width="50%">
