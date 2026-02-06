@@ -50,9 +50,6 @@ def main():
     out_dir = repo_root / "runs" / "sc_darcy_be_picard_demo" / run_id
     ensure_dir(out_dir)
 
-    # ============================================================
-    # 1) ALL CONFIGS
-    # ============================================================
 
     # ---- domain/collocation ----
     x_min, x_max = -1.0, 1.0
