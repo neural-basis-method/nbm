@@ -219,7 +219,7 @@ def center_velocity_from_gradient_2nd_ghost(P, kappa, dx, dy, g_left, vx_f, vy_f
     return vx_c, vy_c
 
 
-def run_fvm_darcian_solver(Lx=2., Ly=2., Nx=50, Ny=50, bc_left=100., bc_right=1., 
+def run_ic_darcian_solver_fvm(Lx=2., Ly=2., Nx=50, Ny=50, bc_left=100., bc_right=1., 
                            bc_bottom=-5, bc_top=5., *, 
                            kappa=None, kappa_file=None):
     
@@ -273,7 +273,7 @@ if __name__ == "__main__":
     import time
     
     t1 = time.time()
-    out = run_fvm_darcian_solver(Lx=2., Ly=2., 
+    out = run_ic_darcian_solver_fvm(Lx=2., Ly=2., 
                                Nx=100, Ny=100, 
                                bc_left=500., bc_right=1., 
                                bc_bottom=-5., bc_top=5.,
