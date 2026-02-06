@@ -13,7 +13,7 @@ Current implementations in this repository focus on fluid flow problems, includi
       <br/><em>Figure 3a. NBM overview.</em>
     </td>
     <td align="center" width="50%">
-      <video src="docs/media/kolmogorov_xi1_t=20-25.mp4" controls muted playsinline width="100%"></video>
+      <video src="docs/figs/kolmogrov_xi1_t=20-25.mp4" controls muted playsinline width="100%"></video>
       <br/><em>Figure 3b. Demo video.</em>
     </td>
   </tr>
