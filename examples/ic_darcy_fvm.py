@@ -3,7 +3,7 @@
 """
 Created on Fri Aug  8 02:09:33 2025
 
-With divergence free basis
+Incompressible Darcy flow solver using FVM with TPFA (two-point flux approx.)
 
 @author: y.wang
 """
@@ -78,48 +78,32 @@ def direct_solve(Nx, Ny, dx, dy, k, s, bc_left, bc_right, bc_top, bc_bottom):
     b = rhs_vector(Nx, Ny, dx, dy, k, bc_left, bc_right, bc_top, bc_bottom, s, 'left')
     # x = spsolve(A, b)
     
-    from scipy.sparse.linalg import gmres, bicgstab, spilu, LinearOperator
+    from scipy.sparse.linalg import bicgstab, spilu, LinearOperator
 
-    # ---------- ILU 预条件器 ----------
+    # ---------- ILU ----------
     ilu = spilu(A.tocsc())
     
-    iter_count = [0]   # 用 list 是因为闭包能修改
+    iter_count = [0]  
     
     def cb(rk):
         iter_count[0] += 1
     
     def Mv(v):
-        # 解 M^{-1} v，这里 M ≈ A（ILU 分解）
         return ilu.solve(v)
     
     M = LinearOperator(A.shape, Mv)
     
-    # # ---------- GMRES 求解 ----------
-    # x, info = gmres(
-    #     A, b,
-    #     M=M,          # 预条件器
-    #     rtol=1e-6,     # 误差容忍
-    #     restart=100,  # Krylov 维度
-    #     maxiter=1000,  # 最多迭代次数
-    #     callback=cb,
-    #     callback_type="pr_norm"
-    # )
-    # print("GMRES iterations =", iter_count[0])
-    # if info != 0:
-    #     print(f"[GMRES] did not converge, info = {info}")
-    
-    # ---------- BICGSTAB 求解 ----------
+    # ---------- BICGSTAB ----------
     x, info = bicgstab(
         A, b,
-        M=M,          # 预条件器
-        rtol=1e-6,     # 误差容忍
-        maxiter=1000,  # 最多迭代次数
+        M=M,          
+        rtol=1e-6,      
+        maxiter=1000,   
         callback=cb,
     )
     # print("BICGSTAB iterations =", iter_count[0])
     if info != 0:
         print(f"[BICGSTAB] did not converge, info = {info}")
-    
     
     
     rel_mse = np.mean((b - A @ x)**2) / np.mean(b**2)
@@ -148,11 +132,7 @@ def direct_solve(Nx, Ny, dx, dy, k, s, bc_left, bc_right, bc_top, bc_bottom):
     vy_f[Ny, :] = -bc_bottom
             
     vx_f[:,0] = vx_f[:, 1] + dx * (vy_f[1:, 0] - vy_f[:-1, 0]) / dy
-    
-    # check
-    # div = ((vx_f[:,1:] - vx_f[:,:-1])/dx + (vy_f[1:,:] - vy_f[:-1,:])/dy)
-    # print(np.max(np.abs(div)))  
-    
+     
     return P, vx, vy, vx_f, vy_f
 
 def harmonic_average(a, b):
@@ -170,30 +150,25 @@ def compute_divergence(vx, vy, dx, dy):
     return div
 
 def center_velocity_from_gradient_2nd_ghost(P, kappa, dx, dy, g_left, vx_f, vy_f):
-    """
-    用 ghost + 二阶中心差分在 cell center 计算 Darcy 速度：
-      右/上/下是 Neumann(给速度u_n) -> 用 Darcy 得 dp/dn，再生成 ghost 压力
-      左是 Dirichlet(p=g_left) -> 二阶 ghost: pLghost = 2*g_left - p0
-    返回 vx_c, vy_c (Ny, Nx)
-    """
+
     Ny, Nx = P.shape
     eps = 1e-30
 
-    # 边界处的压力法向导数（用 Darcy: dp/dn = -u_n/kappa）
-    gR = - vx_f[:, Nx] / (kappa[:, -1] + eps)   # ∂p/∂x at right boundary
-    gT = - vy_f[0,  :] / (kappa[0,  :] + eps)   # ∂p/∂y at top boundary
-    gB = - vy_f[Ny, :] / (kappa[-1, :] + eps)   # ∂p/∂y at bottom boundary
+    # normal direction pressure derivative (dp/dn = -u_n/kappa)
+    gR = - vx_f[:, Nx] / (kappa[:, -1] + eps)   # dp/dx at right boundary
+    gT = - vy_f[0,  :] / (kappa[0,  :] + eps)   # dp/dy at top boundary
+    gB = - vy_f[Ny, :] / (kappa[-1, :] + eps)   # dp/dy at bottom boundary
 
-    # ghost 压力（注意号）：
-    pLghost = 2.0*g_left - P[:, 0]           # 左：Dirichlet
-    pRghost = P[:, -1] + dx * gR             # 右：+x 外侧 → 加
-    pTghost = P[0,  :] - dy * gT             # 上：−y 外侧 → 减   *** 修正点 ***
-    pBghost = P[-1, :] + dy * gB             # 下：+y 外侧 → 加
+    # ghost pressure
+    pLghost = 2.0*g_left - P[:, 0]           # left: Dirichlet
+    pRghost = P[:, -1] + dx * gR             # right: +x
+    pTghost = P[0,  :] - dy * gT             # top: −y 
+    pBghost = P[-1, :] + dy * gB             # bottom: +y 
 
     dpdx = np.zeros_like(P, dtype=float)
     dpdy = np.zeros_like(P, dtype=float)
 
-    # x 向梯度
+    # x direction
     if Nx == 1:
         dpdx[:, 0] = (pRghost - pLghost) / (2.0*dx)
     else:
@@ -202,7 +177,7 @@ def center_velocity_from_gradient_2nd_ghost(P, kappa, dx, dy, g_left, vx_f, vy_f
             dpdx[:, 1:-1] = (P[:, 2:] - P[:, :-2]) / (2.0*dx)
         dpdx[:, -1]   = (pRghost   - P[:, -2]) / (2.0*dx)
 
-    # y 向梯度
+    # y direction
     if Ny == 1:
         dpdy[0, :] = (pBghost - pTghost) / (2.0*dy)
     else:
@@ -219,7 +194,7 @@ def center_velocity_from_gradient_2nd_ghost(P, kappa, dx, dy, g_left, vx_f, vy_f
     return vx_c, vy_c
 
 
-def run_ic_darcian_solver_fvm(Lx=2., Ly=2., Nx=50, Ny=50, bc_left=100., bc_right=1., 
+def run_ic_darcy_fvm(Lx=2., Ly=2., Nx=50, Ny=50, bc_left=100., bc_right=1., 
                            bc_bottom=-5, bc_top=5., *, 
                            kappa=None, kappa_file=None):
     
@@ -233,18 +208,7 @@ def run_ic_darcian_solver_fvm(Lx=2., Ly=2., Nx=50, Ny=50, bc_left=100., bc_right
         kappa_data = loadmat(kappa_file)
         kappa = kappa_data['kappa'] 
         
-    # kappa = 10.0 * np.ones((Ny, Nx))
-    
     kappa *= 0.1 * 6.328 * 0.0008
-    # kappa *= 0.01 * 6.328 * 0.0008 / 0.04 / 2
-    
-    # Ks2 = np.load("Ks_sample_2.npz", allow_pickle=True)["Ks_sample"]
-    # Ks2 = [Ks2[i] for i in range(Ks2.shape[0])]
-    # kappa_samples = Ks2
-    # kk = kappa_samples[0]
-    # kk = kk * 6.328 * 0.0008
-    
-    # kappa = kk
     
     q = np.zeros((Ny, Nx))
     
@@ -255,7 +219,6 @@ def run_ic_darcian_solver_fvm(Lx=2., Ly=2., Nx=50, Ny=50, bc_left=100., bc_right
 
     P, vx, vy, vx_f, vy_f = direct_solve(Nx, Ny, dx, dy, kappa, q, bc_left, bc_right, bc_top, bc_bottom)
     vx_c, vy_c = center_velocity_from_gradient_2nd_ghost(P, kappa, dx, dy, bc_left, vx_f, vy_f)
-    
 
     return {
         "p": P,
@@ -265,7 +228,7 @@ def run_ic_darcian_solver_fvm(Lx=2., Ly=2., Nx=50, Ny=50, bc_left=100., bc_right
     }
 
 # ============================================================
-#                         简单示例
+#                         demo
 # ============================================================
  
 if __name__ == "__main__":
@@ -273,7 +236,7 @@ if __name__ == "__main__":
     import time
     
     t1 = time.time()
-    out = run_ic_darcian_solver_fvm(Lx=2., Ly=2., 
+    out = run_ic_darcy_fvm(Lx=2., Ly=2., 
                                Nx=100, Ny=100, 
                                bc_left=500., bc_right=1., 
                                bc_bottom=-5., bc_top=5.,

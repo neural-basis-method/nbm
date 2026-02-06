@@ -153,11 +153,11 @@ def main():
     if check_error:
         print("\n[demo] FVM reference solve")
 
-        from sc_darcian_solver_fvm_picard_massflux import run_sc_darcian_solver_fvm_picard
+        from sc_darcy_fvm import run_sc_darcy_fvm
         from nbm.utils.metrics import rel_metrics, print_err
         from nbm.utils.spectrum import compare_spectra_samegrid_from_faces
 
-        out = run_sc_darcian_solver_fvm_picard(
+        out = run_sc_darcy_fvm(
             Nx=nx, Ny=ny, Lx=Lx, Ly=Ly,
             n_steps=n_steps, dt=dt,
             cf=cf, p0=p0, rho0=rho0,

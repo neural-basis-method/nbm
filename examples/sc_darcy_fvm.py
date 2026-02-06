@@ -41,23 +41,6 @@ import matplotlib.pyplot as plt
 #               kappa field construction
 # ============================================================
 
-def make_kappa_field(Nx, Ny,
-                     x_min=-1.0, x_max=1.0,
-                     y_min=-1.0, y_max=1.0,
-                     beta1=1.2, beta2=1.2, beta3=1.2):
-    Lx = x_max - x_min
-    Ly = y_max - y_min
-    dx = Lx / Nx
-    dy = Ly / Ny
-    x1d = np.linspace(x_min + 0.5*dx, x_max - 0.5*dx, Nx)
-    y1d = np.linspace(y_min + 0.5*dy, y_max - 0.5*dy, Ny)
-    Xc, Yc = np.meshgrid(x1d, y1d, indexing='xy')
-    two_pi = 2.0*np.pi
-    phi = ( beta1*np.sin(two_pi*Xc)*np.cos(two_pi*Yc)
-          + beta2*np.cos(2*two_pi*Xc)*np.sin(two_pi*Yc)
-          + beta3*np.sin(two_pi*(Xc+Yc)) )
-    return np.exp(phi)
-
 def make_constant_kappa_field(Nx, Ny, val=0.3*6.328):
     return np.ones((Ny, Nx)) * val
 
@@ -252,53 +235,37 @@ def BE_picard(
 
         A_sys = A_mass +  A_diff
         
+        # p_new_flat = spsolve(A_sys, b_vec)
         
-        p_new_flat = spsolve(A_sys, b_vec)
-        
-        # from scipy.sparse.linalg import bicgstab, gmres, spilu, LinearOperator
+        from scipy.sparse.linalg import bicgstab, spilu, LinearOperator
 
-        # # ---------- ILU 预条件器 ----------
-        # ilu = spilu(A_sys.tocsc())
+        # ---------- ILU ----------
+        ilu = spilu(A_sys.tocsc())
         
-        # iter_count = [0]   # 用 list 是因为闭包能修改
+        iter_count = [0]   
         
-        # def cb(rk):
-        #     iter_count[0] += 1
+        def cb(rk):
+            iter_count[0] += 1
         
-        # def Mv(v):
-        #     # 解 M^{-1} v，这里 M ≈ A（ILU 分解）
-        #     return ilu.solve(v)
+        def Mv(v):
+            return ilu.solve(v)
         
-        # M = LinearOperator(A_sys.shape, Mv)
+        M = LinearOperator(A_sys.shape, Mv)
         
-        # # # ---------- GMRES 求解 ----------
-        # # p_new_flat, info = gmres(
-        # #     A_sys, b_vec,
-        # #     M=M,          # 预条件器
-        # #     rtol=1e-6,     # 误差容忍
-        # #     restart=30,  # Krylov 维度
-        # #     maxiter=1000,  # 最多迭代次数
-        # #     callback=cb,
-        # #     callback_type="pr_norm"
-        # # )
-        # # print("GMRES iterations =", iter_count[0])
-        # # if info != 0:
-        # #     print(f"[GMRES] did not converge, info = {info}")
-        # # ---------- BICGSTAB 求解 ----------
-        # p_new_flat, info = bicgstab(
-        #     A_sys, b_vec,
-        #     M=M,          # 预条件器
-        #     rtol=1e-6,     # 误差容忍
-        #     maxiter=1000,  # 最多迭代次数
-        #     callback=cb,
-        # )
-        # print("BICGSTAB iterations =", iter_count[0])
-        # if info != 0:
-        #     print(f"[BICGSTAB] did not converge, info = {info}")
-        
-        
-        
-        
+
+        # ---------- BICGSTAB ----------
+        p_new_flat, info = bicgstab(
+            A_sys, b_vec,
+            M=M,           
+            rtol=1e-6,      
+            maxiter=1000,   
+            callback=cb,
+        )
+        print("BICGSTAB iterations =", iter_count[0])
+        if info != 0:
+            print(f"[BICGSTAB] did not converge, info = {info}")
+
+
         p_new = p_new_flat.reshape(Ny, Nx)
 
         num = np.linalg.norm((p_new - p_k).ravel(), 2)
@@ -312,8 +279,6 @@ def BE_picard(
             rho_k = rho_linear(p_new, rho0, cf, p0)
             return p_new, rho_k, it, rel_change
         
-
-
         p_k = p_new
 
     return p_k, rho_k, picard_maxit, rel_change
@@ -491,71 +456,6 @@ def build_vel_and_flux_fields(p, kappa, dx, dy,
     return vx, vy, mx, my, vx_f, vy_f, mx_f, my_f, vx_c, vy_c, mx_c, my_c
 
 
-def compute_residuals_mass_conservation(
-    rho_np1, p_np1, rho_n,  p_n,                   # shape (Ny, Nx)
-    mx_f, my_f,                        # full-face mass flux: mx_f (Ny, Nx+1), my_f (Ny+1, Nx)
-    q,                                 # body source q(x) [same units as div(m)], shape (Ny, Nx)
-    epsilon, dt, dx, dy, cf, rho0
-):
-    """
-    计算：
-      - div_m:    ∇·(ρ^{n+1} u^{n+1})，用 full-face mass flux 离散
-      - r_map:    局部残差（物理严格版）：ε(ρ^{n+1}-ρ^n) + dt*(div_m - q)
-      - E_full:   全域闭合残差（物理严格版）:
-                     （1/dt） * ∫Ω ε(ρ^{n+1}-ρ^n) dΩ + ∫∂Ω ρ^{n+1}u^{n+1}·n dΓ - dt * ∫Ω q dΩ
-      - bflux:    边界通量积分 ∫∂Ω ρu·n dΓ
-
-    说明：
-      div(m) 离散：div_m[i,j] = (mx_f[i, j+1] - mx_f[i, j]) / dx + (my_f[i+1, j] - my_f[i, j]) / dy
-      边界积分（外法向）：
-        左边界 n = (-1,0):  - sum(mx_f[:, 0]) * dy
-        右边界 n = (+1,0):  + sum(mx_f[:, -1]) * dy
-        顶边界 n = ( 0,-1): - sum(my_f[0, :]) * dx
-        底边界 n = ( 0,+1): + sum(my_f[-1,:]) * dx
-    """
-    Ny, Nx = rho_np1.shape
-    assert rho_n.shape == (Ny, Nx)
-    assert q.shape     == (Ny, Nx)
-    assert mx_f.shape  == (Ny, Nx+1)
-    assert my_f.shape  == (Ny+1, Nx)
-
-    # --- 局部分布的散度（用 full-face mass flux 保证与边界一致） ---       
-    div_m = (mx_f[:, 1:] - mx_f[:, :-1]) / dx + (my_f[1:, :] - my_f[:-1, :]) / dy  # (Ny, Nx)
-
-    # --- 局部残差 ---
-    # 物理严格版：  ε(ρ^{n+1}-ρ^n) + dt*(div_m - q)   （理论上应≈0）
-    r_map = epsilon * (rho_np1 - rho_n) + dt * (div_m - q)
-
-
-    # --- 全域边界积分 ∫∂Ω ρu·n dΓ（线积分；厚度按 1 计） ---
-    # 注意符号（见函数 docstring）：
-    bflux = (- np.sum(mx_f[:, 0])    * dy   # left (n = -x)
-             + np.sum(mx_f[:, -1])   * dy   # right (n = +x)
-             - np.sum(my_f[0, :])    * dx   # top (n = -y)
-             + np.sum(my_f[-1, :])   * dx)  # bottom (n = +y)
-
-    # --- 体积分 ---
-    cell_area = dx * dy
-    dM = epsilon * (rho_np1 - rho_n)           # per cell
-    dM = epsilon * rho0 * cf * (p_np1 - p_n)
-    int_dM = np.sum(dM) * cell_area            # ∫Ω ε(ρ^{n+1}-ρ^n) dΩ
-    int_q  = np.sum(q)  * cell_area            # ∫Ω q dΩ
-
-    # 全域闭合残差（严格版，应≈0）： dt * ∫Ω ε(ρ^{n+1}-ρ^n) dΩ + ∫∂Ω ρu·n dΓ - dt * ∫Ω q dΩ
-    E_full = (1/dt) * int_dM + bflux -  int_q
-
-
-
-    return {
-        "div_m": div_m,
-        "r_map": r_map,
-        "E_full": E_full,
-        "bflux": bflux,
-        "int_dM": int_dM,
-        "int_q": int_q
-    }
-
-
 # ============================================================
 #     Visualization helper (optional sanity)
 # ============================================================
@@ -616,21 +516,13 @@ def plot_outputs(Lx, Ly,
 
     plt.show()
     
-def plot_residual_heatmap(r_map, Lx, Ly, title="local mass-conservation residual (strict)"):
-    extent = (0.0, Lx, 0.0, Ly)
-    plt.figure(figsize=(6,4))
-    im = plt.imshow(r_map, origin='lower', extent=extent, cmap='RdYlBu_r')
-    plt.title(title)
-    plt.colorbar(im)
-    plt.tight_layout()
-    plt.show()
 
 
 # ============================================================
 #     Main driver with time marching + Picard
 # ============================================================
 
-def run_sc_darcian_solver_fvm_picard(
+def run_sc_darcy_fvm(
         Nx=50, Ny=50, Lx=2.0, Ly=2.0,
         n_steps=10, dt=10.0,
         cf=2e-4, p0=1500.0, rho0=1.0,
@@ -658,10 +550,7 @@ def run_sc_darcian_solver_fvm_picard(
     elif constant_kappa:
         kappa = make_constant_kappa_field(Nx, Ny, val=kappa_val)
     else:
-        kappa = make_kappa_field(Nx, Ny,
-                                 0, Lx,
-                                 0, Ly,
-                                 beta1, beta2, beta3)
+        raise ValueError('not constant_kappa nor use_kappa_file')
 
     if q is None:
         q = np.zeros((Ny, Nx))
@@ -670,14 +559,8 @@ def run_sc_darcian_solver_fvm_picard(
     
     m_right = -m_right
     
-    residual_maps = []      # per time step dict: {"r_map":..., "r_map_user":..., "E_full":..., "E_user":..., ...}
-    residual_summaries = [] # 
-    
-    cum_leak_mass  = 0.0
-    cum_leak_ratio = 0.0
 
     for n in range(1, n_steps+1):
-        rho_n = rho_linear(p, rho0, cf, p0)
         
         p_new, rho_last, it_used, relchg = BE_picard(
             Nx, Ny, dx, dy,
@@ -695,72 +578,7 @@ def run_sc_darcian_solver_fvm_picard(
         if verbose:
             print(f"[time step {n}/{n_steps}] Picard iters={it_used}, final rel_change={relchg:.3e}")
         
-        # (_, _, _, _,
-        #  _, _, mx_f, my_f,
-        #  _, _, _, _) = build_vel_and_flux_fields(
-        #     p_new, kappa, dx, dy,
-        #     rho_last,
-        #     m_right=m_right,
-        #     m_top=m_top,
-        #     m_bottom=m_bottom,
-        #     mu=mu,
-        #     p_left=p_left
-        # )
-        
-        # compute local and global residual (conservation check)
-        # res = compute_residuals_mass_conservation(
-        #     rho_np1=rho_last, p_np1 = p_new,
-        #     rho_n=rho_n, p_n = p,
-        #     mx_f=mx_f, my_f=my_f,
-        #     q=q,
-        #     epsilon=epsilon, dt=dt, dx=dx, dy=dy, cf=cf, rho0=rho0
-        # )
-        # residual_maps.append(res)
-        
-        # rho_init  = rho_linear(p, rho0, cf, p0)         # 等于 rho0，但写成通用式
-        # M0        = np.sum(epsilon * rho_init * dx*dy)
-        
-        # # 一步“漏失质量”（lbm）与比例（无量纲）
-        # leak_mass_step  = abs(res["E_full"]) * dt
-        # leak_ratio_step = leak_mass_step / (M0 + 1e-30)
-        
-        # # 累计
-        # cum_leak_mass  += leak_mass_step
-        # cum_leak_ratio += leak_ratio_step
-                
-        # r_loc = res["r_map"]  # 严格版
-        # rL1 = np.sum(np.abs(r_loc)) * dx * dy
-        # rL2 = np.sqrt(np.sum(r_loc**2) * dx * dy)
-        # rL22 = np.sqrt(np.sum(r_loc**2))
-        # rInf = np.max(np.abs(r_loc))
-        # residual_summaries.append({
-        #     "step": n,
-        #     "rL1": rL1,
-        #     "rL2": rL2,
-        #     "rL22": rL22,
-        #     "rInf": rInf,
-        #     "E_full": res["E_full"],
-        #     "bflux": res["bflux"],
-        #     "int_dM": res["int_dM"],
-        #     "int_q":  res["int_q"],
-        #     "leak_mass_step": leak_mass_step,
-        #     "leak_ratio_step": leak_ratio_step,
-        #     "cum_leak_mass": cum_leak_mass,
-        #     "cum_leak_ratio": cum_leak_ratio,
-        # })
-        # if verbose:
-        #     print(f"  conservation residuals (strict):  ||r||_1={rL1:.3e}, ||r||_2={rL2:.3e}, ||r||_22={rL22:.3e}, ||r||_inf={rInf:.3e},  E_full={res['E_full']:.3e}")
-        #     print(f"  global mass balance: E_full={res['E_full']:.3e} lbm/day, "
-        #           f"step_leak={leak_mass_step:.3e} lbm, "
-        #           f"step_ratio={leak_ratio_step*100:.3e}%, "
-        #           f"cum_ratio={cum_leak_ratio*100:.3e}%")
-            
-        # plot_residual_heatmap(r_loc, Lx, Ly)
-        # print("E_full (last step) =", ["E_full"])
-        
-        
         p = p_new
-        
         
 
     # build all velocity / flux fields
@@ -811,23 +629,17 @@ if __name__ == "__main__":
     n_steps = int(T_days / dt)
     n_steps = 9
     
-    # T_days = 90.0
-    # dt = 10.0
-    # n_steps = int(T_days / dt)
-    # n_steps = 1
-
     # Example BC:
     rho = 24.0            # lbm/ft^3 (example)
     u_top = 5.0 #* Lf            # ft/day Darcy vel outward (-y)
     m_top = rho * u_top  # lbm/(ft^2 day)
 
-    out = run_sc_darcian_solver_fvm_picard(
+    out = run_sc_darcy_fvm(
         Nx=Nx, Ny=Ny, Lx=Lx, Ly=Ly,
         n_steps=n_steps, dt=dt,
         cf=2e-4, p0=1500.0, rho0=rho,
         mu=0.04, epsilon=0.25,
         use_kappa_file=False, kappa_file='kappa50x50_2.mat', constant_kappa=True, kappa_val = 0.3*6.328* 0.0008,
-        beta1=1.5, beta2=1.5, beta3=1.5,
         p_left=1500.0,
         m_right=0.0,
         m_top=0.0,
@@ -837,68 +649,6 @@ if __name__ == "__main__":
         verbose=True,
         do_plot=False
     )
-    p_2500    = out['p']
-    vx_2500   = out['vx']   / Lf
-    vy_2500   = out['vy']   / Lf
-    vx_f_2500 = out['vx_f'] / Lf
-    vy_f_2500 = out['vy_f'] / Lf
-    mx_2500   = out['mx']   / Lf
-    my_2500   = out['my']   / Lf
-    mx_f_2500 = out['mx_f'] / Lf
-    my_f_2500 = out['my_f'] / Lf
-    mx_c_2500 = out['mx_c'] / Lf
-    my_c_2500 = out['my_c'] / Lf
-    
-    # Lx, Ly = 2.0, 2.0
-    
-    # Lf = 2500 / Lx
-    
-    # T_days = 90.0 / Lf / Lf
-    # dt = T_days / 9
-    # n_steps = int(T_days / dt)
-    # n_steps = 1
-    
-    # # T_days = 90.0
-    # # dt = 10.0
-    # # n_steps = int(T_days / dt)
-    # # n_steps = 1
-
-    # # Example BC:
-    # rho = 24.0            # lbm/ft^3 (example)
-    # u_top = 5.0 * Lf            # ft/day Darcy vel outward (-y)
-    # m_top = rho * u_top  # lbm/(ft^2 day)
-
-    # out = run_sc_darcian_solver_fvm_picard(
-    #     Nx=Nx, Ny=Ny, Lx=Lx, Ly=Ly,
-    #     n_steps=n_steps, dt=dt,
-    #     cf=2e-4, p0=1500.0, rho0=rho,
-    #     mu=0.04, epsilon=0.25,
-    #     use_kappa_file=True, constant_kappa=False,
-    #     beta1=1.5, beta2=1.5, beta3=1.5,
-    #     p_left=1500.0,
-    #     m_right=0.0,
-    #     m_top=0.0,
-    #     m_bottom=-m_top,
-    #     q=np.zeros((Ny, Nx)),
-    #     picard_tol=1e-6, picard_maxit=25,
-    #     verbose=True,
-    #     do_plot=True
-    # )
-    
-    # p_2    = out['p']
-    # vx_2   = out['vx']   / Lf
-    # vy_2   = out['vy']   / Lf
-    # vx_f_2 = out['vx_f'] / Lf
-    # vy_f_2 = out['vy_f'] / Lf
-    # mx_2   = out['mx']   / Lf
-    # my_2   = out['my']   / Lf
-    # mx_f_2 = out['mx_f'] / Lf
-    # my_f_2 = out['my_f'] / Lf
-    # mx_c_2 = out['mx_c'] / Lf
-    # my_c_2 = out['my_c'] / Lf
-    
-
-
 
     
     from down_sampler_utils import (   
@@ -965,42 +715,8 @@ if __name__ == "__main__":
         errors[key] = (relL1, relL2)
         print(f"{key:6s}:  relL1 = {relL1:8.3f}%,  relL2 = {relL2:8.3f}%")
         
-    from compare_spectrum import compare_spectra_samegrid_from_faces
-    
-    # energy_spectrum_metrics = compare_spectra_samegrid_from_faces(
-    #     out['vx_f'], out['vy_f'], vx_f_ref, vy_f_ref,
-    #     dx, dy, detrend=True, window=True, nbins=None)
-    
-    # print(f"  spectrum: Rel L1 = {energy_spectrum_metrics['rel_L1']*100:10.3e}%, "
-    #       f"Rel L2 = {energy_spectrum_metrics['rel_L2']*100:10.3e}%, "
-    #       f"Rel L1_ = {energy_spectrum_metrics['rel_L1_']*100:10.3e}%, "
-    #       f"Rel L2_ = {energy_spectrum_metrics['rel_L2_']*100:10.3e}%, "
-    #       f"log_RMSE = {energy_spectrum_metrics['log_RMSE']:10.3e}, "
-    #       f"KS_cum_energy = {energy_spectrum_metrics['KS_cum_energy']*100:10.3e}%")            
-    
- 
-    
-    
+
         
     print('Done!')
 
-    # # save to npz with vx, vy, mx, my etc.
-    # np.savez(
-    #     "fine_solution_sc_homogeneous_massfluxBC.npz",
-    #     p        = out["p"],
-    #     vx       = out["vx"],
-    #     vy       = out["vy"],
-    #     mx       = out["mx"],
-    #     my       = out["my"],
-    #     vx_f     = out["vx_f"],
-    #     vy_f     = out["vy_f"],
-    #     mx_f     = out["mx_f"],
-    #     my_f     = out["my_f"],
-    #     vx_c     = out["vx_c"],
-    #     vy_c     = out["vy_c"],
-    #     mx_c     = out["mx_c"],
-    #     my_c     = out["my_c"],
-    #     rho_last = out["rho_last"],
-    # )
 
-    # print("✅ Results saved to fine_solution_sc_homogeneous_massfluxBC.npz")

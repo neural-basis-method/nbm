@@ -122,12 +122,12 @@ def main():
     if check_error:
         print("\n[demo] FVM reference solve")
 
-        from ic_darcian_solver_fvm import run_ic_darcian_solver_fvm
+        from ic_darcy_fvm import run_ic_darcy_fvm
         from nbm.utils.metrics import rel_metrics, print_err
         from nbm.utils.spectrum import compare_spectra_samegrid_from_faces
 
         
-        out = run_ic_darcian_solver_fvm(
+        out = run_ic_darcy_fvm(
             Lx=Lx, Ly=Ly,
             Nx=nx, Ny=nx,
             bc_left=p_left, bc_right=g_right,
