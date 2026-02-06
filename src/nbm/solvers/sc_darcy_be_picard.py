@@ -150,7 +150,7 @@ def run_sc_space_be_picard(
       - full time history (coeffs + Picard iteration traces)
     """
 
-    # ---------- grid spacings ----------
+    # ---------- collocation spacings ----------
     Lx = float(x_max - x_min)
     Ly = float(y_max - y_min)
     hx = Lx / nx
