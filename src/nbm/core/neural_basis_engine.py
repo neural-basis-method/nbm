@@ -11,7 +11,7 @@ general parallelotope domains. The implementation provides analytic input
 derivatives up to third order.
 
 Created on Sun Aug 24 18:47:08 2025
-@author: harrywang
+@author: y.wang
 """
 
 import numpy as np

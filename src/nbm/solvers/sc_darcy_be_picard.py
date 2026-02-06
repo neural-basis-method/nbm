@@ -19,7 +19,7 @@ Boundary conditions (in this version):
 - Right/Bottom/Top: Neumann mass-flux n·J = g_* 
 
 
-Author: harrywang
+Author: y.wang
 """
 
 from __future__ import annotations
