@@ -75,6 +75,7 @@ def main():
     make_plot = False   
 
     seeds = tuple(random.randint(0, 10**6) for _ in range(2))
+    seeds = (558339, 540489)
     print("[demo] seeds:", seeds)
     
     cfg = dict(
