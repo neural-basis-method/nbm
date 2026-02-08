@@ -173,7 +173,7 @@ def run_ic_darcy(
     # ---------- build basis engines ----------
     layer_widths = [layer_width] * (layer_num - 1) + [basis_num]
     shape_factors = [1.0] + [0.1] * (layer_num - 1)
-    residual_strengths = [0.2] * (layer_num - 1) + [0.0]    
+    residual_strengths = [0.4] * (layer_num - 1) + [0.0]    
     
     div_basis = NeuralBasisEngine(
         x_dim=2, 
