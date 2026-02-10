@@ -4,6 +4,13 @@
 Slightly-compressible Darcy (2D), spatial neural-basis + implicit time stepping 
 with Picard iterations, solved via one global least-squares system per Picard step.
 
+Units (field convention):
+  - Pressure p in psi
+  - Mass flux J and velocity v in ft/day
+  - Viscosity mu in cP
+  - Reference density rho0 in lbm/ft^3 (consistent with the rest of the field scaling)
+  - Compressibility cf in 1/psi
+
 Unknowns:
 - Mass flux J = (Jx, Jy), decomposed as J = J_div + J_grad
   * J_div  = ( dpsi/dy, -dpsi/∂x )   (divergence-free contribution)
@@ -17,6 +24,15 @@ Equations (collocation at cell centers):
 Boundary conditions (in this version):
 - Left boundary: Dirichlet pressure p = bc_left
 - Right/Bottom/Top: Neumann mass-flux n·J = g_* 
+
+Permeability scaling:
+  - When kappa is loaded from a .mat file, the stored values are treated as a normalized
+    permeability field and are converted to the coefficient used by this solver.
+  - The factor 6.328 converts permeability to the field-unit Darcy coefficient consistent
+    with p in psi and flux in ft/day.
+  - The factor 0.0008 = 2/2500 is the inverse length scale for the default coordinate
+    domain [-1,1]^2: it maps derivatives taken in the nondimensional coordinate x̂ to
+    derivatives in physical feet for a 2500 ft × 2500 ft domain.
 
 
 Author: y.wang

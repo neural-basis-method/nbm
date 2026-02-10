@@ -3,7 +3,10 @@
 """
 Created on Fri Aug  8 02:09:33 2025
 
-With divergence free basis
+Field-unit convention:
+  - Pressure p in psi
+  - Darcy flux / velocity components in ft/day
+  - Viscosity mu in cP
 
 @author: y.wang
 """

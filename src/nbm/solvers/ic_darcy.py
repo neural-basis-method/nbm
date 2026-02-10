@@ -3,6 +3,27 @@
 """
 Created on Fri Aug  8 02:09:33 2025
 
+Incompressible Darcy flow in 2D solved by NBM collocation with a weighted least-squares
+enforcement of Darcy's law plus mixed boundary conditions.
+
+Field-unit convention:
+  - Pressure p in psi
+  - Darcy flux / velocity components in ft/day
+  - Viscosity mu in cP
+  - Permeability is read from file as a Darcy quantity and converted below
+
+Permeability scaling:
+  - The factor 6.328 converts permeability to the field-unit Darcy coefficient consistent
+    with p in psi and flux in ft/day.
+  - The factor 0.0008 = 2/2500 is the inverse length scale for the default coordinate
+    domain [-1,1]^2: it maps derivatives taken in the nondimensional coordinate x̂ to
+    derivatives in physical feet for a 2500 ft × 2500 ft domain (span 2 in x̂ corresponds
+    to 2500 ft physically).
+
+Boundary conditions:
+  - Left boundary: Dirichlet pressure p = p_left
+  - Right/Bottom/Top boundaries: Neumann normal flux n·J = g_right/g_bottom/g_top
+
 @author: y.wang
 """
 

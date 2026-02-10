@@ -3,6 +3,13 @@
 """
 examples/sc_darcy_be_picard_demo.py
 
+Units (field convention):
+  - Pressure p in psi
+  - Mass flux J and velocity v in ft/day
+  - Viscosity mu in cP
+  - Reference density rho0 in lbm/ft^3 (consistent with the rest of the field scaling)
+  - Compressibility cf in 1/psi
+
 1) Run NBM SC-Darcy (space basis + Backward Euler + Picard) via:
       nbm.solvers.sc_darcy_be_picard.run_sc_space_be_picard
 2) (Optional) Run FVM reference and print error metrics.
