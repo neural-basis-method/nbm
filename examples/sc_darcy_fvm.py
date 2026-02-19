@@ -651,69 +651,69 @@ if __name__ == "__main__":
     )
 
     
-    from down_sampler_utils import (   
-        downsample_cell_center_scalar,
-        downsample_cell_center_vector_comp,
-        downsample_internal_vx,
-        downsample_internal_vy,
-        downsample_all_vx,
-        downsample_all_vy
-    )
-    fine_solution = np.load("fine_solution_sc_homogeneous_massfluxBC_t090.npz")
+    # from down_sampler_utils import (   
+    #     downsample_cell_center_scalar,
+    #     downsample_cell_center_vector_comp,
+    #     downsample_internal_vx,
+    #     downsample_internal_vy,
+    #     downsample_all_vx,
+    #     downsample_all_vy
+    # )
+    # fine_solution = np.load("fine_solution_sc_homogeneous_massfluxBC_t090.npz")
 
-    p_fine      = fine_solution["p"]
-    vx_fine     = fine_solution["vx"]
-    vy_fine     = fine_solution["vy"]
-    vx_f_fine   = fine_solution["vx_f"]
-    vy_f_fine   = fine_solution["vy_f"]
+    # p_fine      = fine_solution["p"]
+    # vx_fine     = fine_solution["vx"]
+    # vy_fine     = fine_solution["vy"]
+    # vx_f_fine   = fine_solution["vx_f"]
+    # vy_f_fine   = fine_solution["vy_f"]
     
-    mx_fine     = fine_solution["mx"]
-    my_fine     = fine_solution["my"]
-    mx_f_fine   = fine_solution["mx_f"]
-    my_f_fine   = fine_solution["my_f"]
+    # mx_fine     = fine_solution["mx"]
+    # my_fine     = fine_solution["my"]
+    # mx_f_fine   = fine_solution["mx_f"]
+    # my_f_fine   = fine_solution["my_f"]
     
 
-    mx_c_fine   = fine_solution["mx_c"]
-    my_c_fine   = fine_solution["my_c"]
+    # mx_c_fine   = fine_solution["mx_c"]
+    # my_c_fine   = fine_solution["my_c"]
     
-    fine_n = 1000
+    # fine_n = 1000
     
-    p_ref   = downsample_cell_center_scalar(p_fine, Lx, Ly, fine_n, fine_n, 50, 50)
-    vx_ref  = downsample_internal_vx(vx_fine, Lx, Ly, fine_n, fine_n, 50, 50)
-    vy_ref  = downsample_internal_vy(vy_fine, Lx, Ly, fine_n, fine_n, 50, 50)
-    mx_ref  = downsample_internal_vx(mx_fine, Lx, Ly, fine_n, fine_n, 50, 50)
-    my_ref  = downsample_internal_vy(my_fine, Lx, Ly, fine_n, fine_n, 50, 50)
-    vx_f_ref  = downsample_all_vx(vx_f_fine, Lx, Ly, fine_n, fine_n, 50, 50)
-    vy_f_ref  = downsample_all_vy(vy_f_fine, Lx, Ly, fine_n, fine_n, 50, 50)
-    mx_f_ref  = downsample_all_vx(mx_f_fine, Lx, Ly, fine_n, fine_n, 50, 50)
-    my_f_ref  = downsample_all_vy(my_f_fine, Lx, Ly, fine_n, fine_n, 50, 50)
-    mx_c_ref  = downsample_cell_center_vector_comp(mx_c_fine, Lx, Ly, fine_n, fine_n, 50, 50)
-    my_c_ref  = downsample_cell_center_vector_comp(my_c_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # p_ref   = downsample_cell_center_scalar(p_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # vx_ref  = downsample_internal_vx(vx_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # vy_ref  = downsample_internal_vy(vy_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # mx_ref  = downsample_internal_vx(mx_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # my_ref  = downsample_internal_vy(my_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # vx_f_ref  = downsample_all_vx(vx_f_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # vy_f_ref  = downsample_all_vy(vy_f_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # mx_f_ref  = downsample_all_vx(mx_f_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # my_f_ref  = downsample_all_vy(my_f_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # mx_c_ref  = downsample_cell_center_vector_comp(mx_c_fine, Lx, Ly, fine_n, fine_n, 50, 50)
+    # my_c_ref  = downsample_cell_center_vector_comp(my_c_fine, Lx, Ly, fine_n, fine_n, 50, 50)
     
-    ref = {
-        "p": p_ref,
-        "vx": vx_ref, "vy": vy_ref,
-        "mx": mx_ref, "my": my_ref,
-        "vx_f": vx_f_ref, "vy_f": vy_f_ref,
-        "mx_f": mx_f_ref, "my_f": my_f_ref,
-        "mx_c": mx_c_ref, "my_c": my_c_ref
-    }
+    # ref = {
+    #     "p": p_ref,
+    #     "vx": vx_ref, "vy": vy_ref,
+    #     "mx": mx_ref, "my": my_ref,
+    #     "vx_f": vx_f_ref, "vy_f": vy_f_ref,
+    #     "mx_f": mx_f_ref, "my_f": my_f_ref,
+    #     "mx_c": mx_c_ref, "my_c": my_c_ref
+    # }
 
-    fields = ["p", "vx", "vy", "mx", "my",
-          "vx_f", "vy_f", "mx_f", "my_f",
-          "mx_c", "my_c"]
+    # fields = ["p", "vx", "vy", "mx", "my",
+    #       "vx_f", "vy_f", "mx_f", "my_f",
+    #       "mx_c", "my_c"]
 
-    errors = {}
+    # errors = {}
     
-    for key in fields:
-        relL1, relL2 = rel_errors(out[key], ref[key])
-        errors[key] = (relL1, relL2)
-        print(f"{key:6s}:  relL1 = {relL1:.3e},  relL2 = {relL2:.3e}")
+    # for key in fields:
+    #     relL1, relL2 = rel_errors(out[key], ref[key])
+    #     errors[key] = (relL1, relL2)
+    #     print(f"{key:6s}:  relL1 = {relL1:.3e},  relL2 = {relL2:.3e}")
         
-    for key in fields:
-        relL1, relL2 = rel_errors_percent(out[key], ref[key])
-        errors[key] = (relL1, relL2)
-        print(f"{key:6s}:  relL1 = {relL1:8.3f}%,  relL2 = {relL2:8.3f}%")
+    # for key in fields:
+    #     relL1, relL2 = rel_errors_percent(out[key], ref[key])
+    #     errors[key] = (relL1, relL2)
+    #     print(f"{key:6s}:  relL1 = {relL1:8.3f}%,  relL2 = {relL2:8.3f}%")
         
 
         

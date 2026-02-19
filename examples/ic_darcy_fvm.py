@@ -237,10 +237,10 @@ if __name__ == "__main__":
     
     t1 = time.time()
     out = run_ic_darcy_fvm(Lx=2., Ly=2., 
-                               Nx=100, Ny=100, 
+                               Nx=50, Ny=50, 
                                bc_left=500., bc_right=1., 
                                bc_bottom=-5., bc_top=5.,
-                               kappa_file='kappa100x100_1.mat')
+                               kappa_file='kappa50x50_2.mat')
 
     
     t2 = time.time()
