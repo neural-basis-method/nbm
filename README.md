@@ -56,10 +56,9 @@ python examples/sc_darcy_be_picard_demo.py
 
 ## Citation
 
-If you use NBM / NBM-OL in academic work, please cite the accompanying paper:
+If you use NBM / NBM-OL in academic work, please cite the following accompanying papers:
 
-- *Modeling and learning multiscale advective Darcian dynamics with the Neural Basis Method* (add DOI/arXiv when available)
-
+- *Solving and learning advective multiscale Darcian dynamics with the Neural Basis Method* (arXiv:2602.17776, 2026; DOI: [10.48550/arXiv.2602.17776](https://doi.org/10.48550/arXiv.2602.17776))
 ---
 
 ## License and trademarks
