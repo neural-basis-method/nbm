@@ -1,7 +1,29 @@
 cff-version: 1.2.0
 title: "Neural Basis Method (NBM)"
 message: "If you use this software, please cite the associated paper."
+type: software
+
 authors:
   - family-names: "Wang"
-    given-names: "Harry"
+    given-names: "Yuhe"
+  - family-names: "Wang"
+    given-names: "Min"
+
 license: "Apache-2.0"
+repository-code: "https://github.com/neural-basis-method/nbm"
+url: "https://github.com/neural-basis-method/nbm"
+
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Wang"
+      given-names: "Yuhe"
+    - family-names: "Wang"
+      given-names: "Min"
+  title: "Solving and learning advective multiscale Darcian dynamics with the Neural Basis Method"
+  journal: "arXiv"
+  year: 2026
+  doi: "10.48550/arXiv.2602.17776"
+  identifiers:
+    - type: arxiv
+      value: "2602.17776"
