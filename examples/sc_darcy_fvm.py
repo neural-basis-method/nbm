@@ -629,7 +629,7 @@ if __name__ == "__main__":
     n_steps = int(T_days / dt)
     n_steps = 9
     
-    # Example BC:
+
     rho = 24.0            # lbm/ft^3 (example)
     u_top = 5.0 #* Lf            # ft/day Darcy vel outward (-y)
     m_top = rho * u_top  # lbm/(ft^2 day)
